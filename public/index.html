@@ -303,7 +303,8 @@
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       tipoActual = tab.dataset.tipo;
-      if (document.getElementById('searchInput').value.trim()) buscar();
+      console.log('Tab cambiada a:', tipoActual);
+      if (document.getElementById('searchInput').value.trim()) buscar(tipoActual);
     });
   });
 
@@ -382,10 +383,11 @@
 
   function cambiarPagina(dir) { mostrarPagina(paginaActual + dir); }
 
-  async function buscar() {
+  async function buscar(tipoOverride) {
     const q = document.getElementById('searchInput').value.trim();
     if (!q) return;
 
+    const tipo = tipoOverride || tipoActual;
     const plataforma = document.getElementById('filtroPlataforma').value;
     const condicion = document.getElementById('filtroCondicion').value;
     const region = document.getElementById('filtroRegion').value;
@@ -393,13 +395,15 @@
     const precioMin = document.getElementById('precioMin').value;
     const precioMax = document.getElementById('precioMax').value;
 
-    const params = new URLSearchParams({ q, tipo: tipoActual });
+    const params = new URLSearchParams({ q, tipo });
     if (plataforma) params.append('plataforma', plataforma);
     if (condicion) params.append('condicion', condicion);
     if (region) params.append('region', region);
     if (orden) params.append('orden', orden);
     if (precioMin) params.append('precioMin', precioMin);
     if (precioMax) params.append('precioMax', precioMax);
+
+    console.log('Buscando con tipo:', tipo, '| URL:', `/api/search?${params}`);
 
     document.getElementById('loading').classList.add('visible');
     document.getElementById('emptyState').classList.remove('visible');
