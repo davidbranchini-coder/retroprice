@@ -144,7 +144,8 @@
     main { padding: 1rem; }
     .result-card { grid-template-columns: auto 1fr; }
     .card-right { grid-column: 2; }
-    .tab { font-size: 0.62rem; padding: 0.6rem 0.8rem; }
+    .tab { font-size: 0.58rem; padding: 0.6rem 0.6rem; }
+    .tab-badge { display: none; }
     .pag-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; }
   }
 </style>
@@ -261,8 +262,8 @@
 
   <div class="tabs" id="tabs">
     <div class="tab active" data-tipo="activos">ACTIVOS <span class="tab-badge">EN VENTA</span></div>
-    <div class="tab" data-tipo="finalizados">FINALIZADOS <span class="tab-badge">TERMINADOS</span></div>
-    <div class="tab" data-tipo="vendidos">VENDIDOS <span class="tab-badge">PRECIO REAL</span></div>
+    <div class="tab" data-tipo="finalizados">FINALIZ. <span class="tab-badge">TERMINADOS</span></div>
+    <div class="tab" data-tipo="vendidos">VENDIDOS <span class="tab-badge">REAL</span></div>
   </div>
 
   <div class="loading" id="loading">CONSULTANDO EBAY</div>
@@ -298,10 +299,11 @@
   // Pestañas
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
+      if (tab.classList.contains('active')) return;
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       tipoActual = tab.dataset.tipo;
-      buscar();
+      if (document.getElementById('searchInput').value.trim()) buscar();
     });
   });
 
