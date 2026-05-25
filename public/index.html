@@ -21,214 +21,131 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Space Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  body { background: var(--black); color: var(--white); font-family: 'Space Mono', monospace; min-height: 100vh; overflow-x: hidden; }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
-    pointer-events: none;
-    z-index: 1000;
-  }
+  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px); pointer-events: none; z-index: 1000; }
 
-  header {
-    border-bottom: 2px solid var(--green);
-    padding: 1.5rem 2rem;
-    display: flex;
-    align-items: flex-end;
-    gap: 2rem;
-    box-shadow: 0 2px 40px var(--green-glow);
-  }
-
+  header { border-bottom: 2px solid var(--green); padding: 1.5rem 2rem; display: flex; align-items: flex-end; gap: 2rem; box-shadow: 0 2px 40px var(--green-glow); }
   .logo { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 7vw, 5rem); color: var(--green); line-height: 0.9; text-shadow: 0 0 30px var(--green); letter-spacing: 0.05em; }
   .logo span { color: var(--amber); text-shadow: 0 0 30px var(--amber); }
   .logo-tag { font-size: 0.6rem; color: var(--green-dim); letter-spacing: 0.3em; margin-bottom: 0.2rem; }
   .tagline { font-size: 0.65rem; color: var(--green-dim); letter-spacing: 0.15em; margin-top: 0.4rem; }
-
   .header-status { margin-left: auto; text-align: right; font-size: 0.6rem; color: var(--green-dim); line-height: 2; }
   .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 6px; box-shadow: 0 0 8px var(--green); animation: blink 1.5s infinite; }
   @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.2} }
 
   main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
 
-  /* Banner demo */
-  .demo-banner { background: rgba(255,170,0,0.08); border: 1px solid var(--amber); padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.6rem; color: var(--amber); letter-spacing: 0.08em; line-height: 1.8; display: none; }
+  .demo-banner { background: rgba(255,170,0,0.08); border: 1px solid var(--amber); padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.65rem; color: var(--amber); letter-spacing: 0.08em; line-height: 1.8; display: none; }
   .demo-banner.visible { display: block; }
 
-  /* Búsqueda */
-  .section-label { font-size: 0.58rem; letter-spacing: 0.4em; color: var(--green-dim); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+  .section-label { font-size: 0.65rem; letter-spacing: 0.4em; color: var(--green-dim); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
   .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 
+  /* Search */
   .search-box { display: flex; border: 2px solid var(--green); box-shadow: 0 0 20px var(--green-glow); width: 100%; }
-  .search-prefix { background: var(--green); color: var(--black); font-family: 'VT323', monospace; font-size: 1.4rem; padding: 0.8rem 0.8rem; display: flex; align-items: center; flex-shrink: 0; }
-  .search-input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--green); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 0.6rem 0.8rem; caret-color: var(--green); }
-  .search-input::placeholder { color: rgba(0,255,136,0.2); font-size: 1.1rem; }
-  .search-btn { background: var(--green); color: var(--black); border: none; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; padding: 0 1rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
+  .search-prefix { background: var(--green); color: var(--black); font-family: 'VT323', monospace; font-size: 1.6rem; padding: 0.8rem 1rem; display: flex; align-items: center; flex-shrink: 0; }
+  .search-input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--green); font-family: 'VT323', monospace; font-size: 1.6rem; padding: 0.6rem 1rem; caret-color: var(--green); }
+  .search-input::placeholder { color: rgba(0,255,136,0.2); font-size: 1.2rem; }
+  .search-btn { background: var(--green); color: var(--black); border: none; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; padding: 0 1.2rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
   .search-btn:hover { background: var(--amber); }
   .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* Filtros */
-  .filtros-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    margin: 1.2rem 0;
-    padding: 1.2rem;
-    border: 1px solid var(--border);
-    background: rgba(0,255,136,0.02);
-  }
-
-  .filtro-grupo { display: flex; flex-direction: column; gap: 0.4rem; }
-  .filtro-label { font-size: 0.55rem; letter-spacing: 0.2em; color: var(--green-dim); text-transform: uppercase; }
-
-  .filtro-select {
-    background: var(--black);
-    color: var(--green);
-    border: 1px solid var(--border);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.6rem;
-    padding: 0.4rem 0.6rem;
-    cursor: pointer;
-    outline: none;
-    letter-spacing: 0.05em;
-    transition: border-color 0.15s;
-  }
+  .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.2rem 0; padding: 1.2rem; border: 1px solid var(--border); background: rgba(0,255,136,0.02); }
+  .filtro-grupo { display: flex; flex-direction: column; gap: 0.5rem; }
+  .filtro-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--green-dim); text-transform: uppercase; }
+  .filtro-select { background: var(--black); color: var(--green); border: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 0.5rem 0.7rem; cursor: pointer; outline: none; letter-spacing: 0.05em; transition: border-color 0.15s; }
   .filtro-select:focus { border-color: var(--green); }
   .filtro-select option { background: #0a0a0a; }
 
   .precio-rango { display: flex; gap: 0.4rem; align-items: center; }
-  .precio-input {
-    background: var(--black);
-    color: var(--green);
-    border: 1px solid var(--border);
-    font-family: 'VT323', monospace;
-    font-size: 1.1rem;
-    padding: 0.3rem 0.5rem;
-    width: 70px;
-    outline: none;
-    text-align: center;
-  }
+  .precio-input { background: var(--black); color: var(--green); border: 1px solid var(--border); font-family: 'VT323', monospace; font-size: 1.2rem; padding: 0.3rem 0.5rem; width: 70px; outline: none; text-align: center; }
   .precio-input:focus { border-color: var(--green); }
-  .precio-sep { color: var(--green-dim); font-size: 0.6rem; }
-
-  .chips-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-  .chip {
-    border: 1px solid var(--border);
-    padding: 0.5rem 0.9rem;
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    color: var(--green-dim);
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
-    user-select: none;
-    min-height: 36px;
-    display: flex;
-    align-items: center;
-  }
-  .chip:hover, .chip.active { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+  .precio-sep { color: var(--green-dim); font-size: 0.65rem; }
 
   /* Stats */
-  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); margin: 1.5rem 0; display: none; }
-  .stat-item { padding: 1rem 1.2rem; border-right: 1px solid var(--border); }
+  .stats-bar { display: none; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); margin: 1.5rem 0; }
+  .stat-item { padding: 0.8rem 1rem; border-right: 1px solid var(--border); }
   .stat-item:last-child { border-right: none; }
-  .stat-label { font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.3rem; }
-  .stat-value { font-family: 'VT323', monospace; font-size: 2rem; color: var(--green); line-height: 1; }
+  .stat-label { font-size: 0.58rem; color: var(--green-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .stat-value { font-family: 'VT323', monospace; font-size: 1.8rem; color: var(--green); line-height: 1; }
   .stat-value.amber { color: var(--amber); }
   .stat-value.red { color: var(--red); }
 
-  /* Loading */
-  .loading { text-align: center; padding: 3rem; font-family: 'VT323', monospace; font-size: 1.5rem; color: var(--green-dim); display: none; }
-  .loading.visible { display: block; }
+  /* Pestañas */
+  .tabs { display: none; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; margin-top: 1rem; }
+  .tabs.visible { display: flex; }
+  .tab { font-size: 0.72rem; letter-spacing: 0.15em; color: var(--green-dim); padding: 0.8rem 1.4rem; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; text-transform: uppercase; }
+  .tab:hover { color: var(--green); }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); font-weight: 700; }
+  .tab-badge { font-size: 0.55rem; background: var(--green-glow); border: 1px solid var(--green-dim); color: var(--green-dim); padding: 0.1rem 0.4rem; margin-left: 0.4rem; }
+  .tab.active .tab-badge { background: var(--green); color: var(--black); border-color: var(--green); }
 
-  .empty-state { text-align: center; padding: 3rem; color: var(--green-dim); font-size: 0.65rem; letter-spacing: 0.1em; display: none; }
+  /* Loading */
+  .loading { text-align: center; padding: 3rem; font-family: 'VT323', monospace; font-size: 1.6rem; color: var(--green-dim); display: none; }
+  .loading.visible { display: block; }
+  .empty-state { text-align: center; padding: 3rem; color: var(--green-dim); font-size: 0.7rem; letter-spacing: 0.1em; display: none; }
   .empty-state.visible { display: block; }
 
-  /* Resultados */
-  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-  .results-count { font-size: 0.6rem; color: var(--green-dim); letter-spacing: 0.1em; }
+  /* Cards */
+  .results-list { display: none; flex-direction: column; gap: 0.6rem; }
+  .results-list.visible { display: flex; }
 
-  .results-list { display: flex; flex-direction: column; gap: 0.6rem; display: none; }
-
-  .result-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    padding: 1rem 1.2rem;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 0.8rem;
-    align-items: center;
-    text-decoration: none;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-img {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    image-rendering: pixelated;
-    flex-shrink: 0;
-  }
-
-  .card-img-placeholder {
-    width: 64px;
-    height: 64px;
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: var(--border);
-    flex-shrink: 0;
-    background: rgba(0,255,136,0.03);
-  }
+  .result-card { background: var(--card-bg); border: 1px solid var(--border); padding: 1rem 1.2rem; display: grid; grid-template-columns: auto 1fr auto; gap: 0.8rem; align-items: center; text-decoration: none; transition: all 0.2s; position: relative; overflow: hidden; }
   .result-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--green); transform:scaleX(0); transform-origin:left; transition:transform 0.3s; }
   .result-card:hover { border-color: var(--green); box-shadow: 0 0 20px var(--green-glow); transform: translateX(3px); }
   .result-card:hover::before { transform: scaleX(1); }
 
+  .card-img { width: 64px; height: 64px; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+  .card-img-placeholder { width: 64px; height: 64px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--border); flex-shrink: 0; background: rgba(0,255,136,0.03); }
+
   .card-left { display: flex; flex-direction: column; gap: 0.3rem; }
-  .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; color: var(--white); line-height: 1; }
-  .card-meta { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-  .card-condicion { font-size: 0.52rem; letter-spacing: 0.1em; color: var(--black); padding: 0.15rem 0.5rem; text-transform: uppercase; }
+  .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--white); line-height: 1; }
+  .card-meta { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+  .card-condicion { font-size: 0.58rem; letter-spacing: 0.1em; color: var(--black); padding: 0.15rem 0.5rem; text-transform: uppercase; }
   .cond-nuevo { background: var(--green); }
   .cond-como_nuevo { background: #00ccaa; }
   .cond-muy_bueno { background: var(--amber); }
   .cond-bueno { background: #ff8800; }
   .cond-aceptable { background: var(--red); }
   .cond-usado { background: #555; color: var(--white); }
-
-  .card-ubicacion { font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.05em; }
+  .card-ubicacion { font-size: 0.55rem; color: var(--green-dim); letter-spacing: 0.05em; }
+  .vendido-badge { font-size: 0.55rem; letter-spacing: 0.1em; color: var(--black); background: var(--amber); padding: 0.15rem 0.5rem; }
+  .fecha-fin { font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.05em; }
 
   .card-right { text-align: right; }
   .card-price { font-family: 'VT323', monospace; font-size: 2rem; color: var(--green); line-height: 1; }
   .card-price.barato { color: var(--green); text-shadow: 0 0 10px var(--green); }
   .card-price.caro { color: var(--red); }
   .card-price.medio { color: var(--amber); }
-  .ver-link { font-size: 0.5rem; color: var(--green-dim); letter-spacing: 0.1em; margin-top: 0.2rem; }
+  .ver-link { font-size: 0.55rem; color: var(--green-dim); letter-spacing: 0.1em; margin-top: 0.2rem; }
 
+  /* Paginación */
   .paginacion { display: none; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; margin-bottom: 2rem; padding: 1.5rem; border: 1px solid var(--border); background: rgba(0,255,136,0.02); }
   .paginacion.visible { display: flex; }
-  .pag-btn { background: transparent; border: 1px solid var(--green); color: var(--green); font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; padding: 0.5rem 1.2rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+  .pag-btn { background: transparent; border: 1px solid var(--green); color: var(--green); font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; padding: 0.6rem 1.4rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
   .pag-btn:hover { background: var(--green); color: var(--black); }
   .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .pag-btn:disabled:hover { background: transparent; color: var(--green); }
-  .pag-info { font-size: 0.6rem; color: var(--green-dim); letter-spacing: 0.1em; } padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.1em; box-shadow: 0 -2px 30px var(--green-glow); margin-top: 3rem; }
+  .pag-info { font-size: 0.65rem; color: var(--green-dim); letter-spacing: 0.1em; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--border); padding: 0.8rem 2rem; text-align: center; font-size: 0.5rem; color: var(--green-dim); letter-spacing: 0.1em; margin-top: 2rem; }
 
   @media (max-width: 600px) {
-    .stats-bar { grid-template-columns: repeat(2,1fr); }
+    .stats-bar { grid-template-columns: repeat(2, 1fr) !important; }
+    .stat-item:nth-child(2) { border-right: none; }
+    .stat-item:nth-child(1), .stat-item:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .stat-value { font-size: 1.4rem; }
     header { flex-direction: column; align-items: flex-start; }
     .header-status { margin-left: 0; text-align: left; }
     .filtros-grid { grid-template-columns: 1fr; }
+    main { padding: 1rem; }
+    .result-card { grid-template-columns: auto 1fr; }
+    .card-right { grid-column: 2; }
+    .tab { font-size: 0.62rem; padding: 0.6rem 0.8rem; }
+    .pag-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; }
   }
 </style>
 </head>
@@ -253,32 +170,33 @@
     ⚠️ MODO DEMO — Configurá tus claves de eBay en el archivo .env para ver precios reales.
   </div>
 
-  <!-- Búsqueda -->
   <div class="section-label" style="margin-top:0">BUSCAR JUEGO</div>
   <div class="search-box">
     <div class="search-prefix">></div>
-    <input class="search-input" type="text" id="searchInput" placeholder="ej: Sonic Mega Drive, Street Fighter SNES...">
+    <input class="search-input" type="text" id="searchInput" placeholder="ej: Sonic, Street Fighter, Final Fantasy...">
     <button class="search-btn" id="searchBtn" onclick="buscar()">BUSCAR</button>
   </div>
 
-  <!-- Filtros -->
   <div class="filtros-grid">
 
     <div class="filtro-grupo">
       <div class="filtro-label">Plataforma</div>
-      <div class="chips-row" id="chipPlataforma">
-        <div class="chip active" data-val="">TODAS</div>
-        <div class="chip" data-val="Mega Drive">MEGA DRIVE</div>
-        <div class="chip" data-val="Super Nintendo SNES">SNES</div>
-        <div class="chip" data-val="PlayStation PS1">PLAYSTATION</div>
-        <div class="chip" data-val="Nintendo 64 N64">NINTENDO 64</div>
-        <div class="chip" data-val="Game Boy">GAME BOY</div>
-        <div class="chip" data-val="Sega Saturn">SATURN</div>
-        <div class="chip" data-val="Dreamcast">DREAMCAST</div>
-        <div class="chip" data-val="NES Nintendo">NES</div>
-        <div class="chip" data-val="PlayStation 2 PS2">PS2</div>
-        <div class="chip" data-val="Game Boy Advance GBA">GBA</div>
-      </div>
+      <select class="filtro-select" id="filtroPlataforma">
+        <option value="">Todas las plataformas</option>
+        <option value="Mega Drive">Mega Drive</option>
+        <option value="Super Nintendo SNES">Super Nintendo (SNES)</option>
+        <option value="PlayStation PS1">PlayStation 1</option>
+        <option value="PlayStation 2 PS2">PlayStation 2</option>
+        <option value="Nintendo 64 N64">Nintendo 64</option>
+        <option value="Game Boy">Game Boy</option>
+        <option value="Game Boy Advance GBA">Game Boy Advance</option>
+        <option value="Sega Saturn">Sega Saturn</option>
+        <option value="Dreamcast">Dreamcast</option>
+        <option value="NES Nintendo">NES</option>
+        <option value="Master System">Master System</option>
+        <option value="Atari">Atari</option>
+        <option value="Amiga">Amiga</option>
+      </select>
     </div>
 
     <div class="filtro-grupo">
@@ -322,7 +240,6 @@
 
   </div>
 
-  <!-- Stats -->
   <div class="stats-bar" id="statsBar">
     <div class="stat-item">
       <div class="stat-label">Resultados</div>
@@ -342,9 +259,14 @@
     </div>
   </div>
 
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tipo="activos">ACTIVOS <span class="tab-badge">EN VENTA</span></div>
+    <div class="tab" data-tipo="finalizados">FINALIZADOS <span class="tab-badge">TERMINADOS</span></div>
+    <div class="tab" data-tipo="vendidos">VENDIDOS <span class="tab-badge">PRECIO REAL</span></div>
+  </div>
+
   <div class="loading" id="loading">CONSULTANDO EBAY</div>
   <div class="empty-state" id="emptyState">// SIN RESULTADOS — Probá con otro término o cambiá los filtros</div>
-
   <div class="results-list" id="resultsList"></div>
 
   <div class="paginacion" id="paginacion">
@@ -356,92 +278,85 @@
 </main>
 
 <footer>
-  <div>RETROPRICE © 2025 · POWERED BY EBAY API</div>
-  <div>BETA v0.2.0</div>
-  <div><span class="status-dot"></span>EN LÍNEA</div>
+  RETROPRICE © 2025 · POWERED BY EBAY API · BETA v0.3.0 · <span class="status-dot"></span>EN LÍNEA
 </footer>
 
 <script>
   let paginaActual = 0;
   let todosLosItems = [];
-  let ultimaQuery = '';
   const POR_PAGINA = 20;
+  let tipoActual = 'activos';
+
   setInterval(() => {
     document.getElementById('hora').textContent = new Date().toLocaleTimeString('es-ES');
   }, 1000);
 
-  // Enter para buscar
   document.getElementById('searchInput').addEventListener('keypress', e => {
     if (e.key === 'Enter') buscar();
   });
 
-  // Chips de plataforma
-  document.querySelectorAll('#chipPlataforma .chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#chipPlataforma .chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
+  // Pestañas
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      tipoActual = tab.dataset.tipo;
+      buscar();
     });
   });
 
-  function getPlataforma() {
-    const active = document.querySelector('#chipPlataforma .chip.active');
-    return active ? active.dataset.val : '';
-  }
-
-  function condicionClass(condicion) {
-    if (!condicion) return 'cond-usado';
-    const c = condicion.toLowerCase();
-    if (c.includes('new') || c.includes('nuevo')) return 'cond-nuevo';
-    if (c.includes('like new') || c.includes('como nuevo') || c.includes('mint')) return 'cond-como_nuevo';
-    if (c.includes('very good') || c.includes('muy bueno')) return 'cond-muy_bueno';
-    if (c.includes('good') || c.includes('bueno')) return 'cond-bueno';
-    if (c.includes('acceptable') || c.includes('aceptable') || c.includes('fair')) return 'cond-aceptable';
+  function condicionClass(c) {
+    if (!c) return 'cond-usado';
+    const s = c.toLowerCase();
+    if (s.includes('new') && !s.includes('like')) return 'cond-nuevo';
+    if (s.includes('like new') || s.includes('mint')) return 'cond-como_nuevo';
+    if (s.includes('very good')) return 'cond-muy_bueno';
+    if (s.includes('good')) return 'cond-bueno';
+    if (s.includes('acceptable') || s.includes('fair')) return 'cond-aceptable';
     return 'cond-usado';
   }
 
-  function condicionLabel(condicion) {
-    if (!condicion) return 'Usado';
-    const c = condicion.toLowerCase();
-    if (c.includes('new') && !c.includes('like')) return 'Nuevo';
-    if (c.includes('like new') || c.includes('mint')) return 'Como nuevo';
-    if (c.includes('very good')) return 'Muy bueno';
-    if (c.includes('good')) return 'Bueno';
-    if (c.includes('acceptable') || c.includes('fair')) return 'Aceptable';
-    return condicion;
+  function condicionLabel(c) {
+    if (!c) return 'Usado';
+    const s = c.toLowerCase();
+    if (s.includes('new') && !s.includes('like')) return 'Nuevo';
+    if (s.includes('like new') || s.includes('mint')) return 'Como nuevo';
+    if (s.includes('very good')) return 'Muy bueno';
+    if (s.includes('good')) return 'Bueno';
+    if (s.includes('acceptable') || s.includes('fair')) return 'Aceptable';
+    return c;
   }
 
   function precioColor(precio, min, max) {
     const p = parseFloat(precio);
     if (isNaN(p)) return '';
-    if (p <= min * 1.1) return 'barato';
-    if (p >= max * 0.9) return 'caro';
+    if (p <= min * 1.15) return 'barato';
+    if (p >= max * 0.85) return 'caro';
     return 'medio';
   }
 
   function mostrarPagina(pagina) {
     paginaActual = pagina;
-    const inicio = pagina * POR_PAGINA;
-    const fin = inicio + POR_PAGINA;
-    const items = todosLosItems.slice(inicio, fin);
+    const items = todosLosItems.slice(pagina * POR_PAGINA, (pagina + 1) * POR_PAGINA);
     const totalPaginas = Math.ceil(todosLosItems.length / POR_PAGINA);
-
     const precios = todosLosItems.map(i => parseFloat(i.precio)).filter(p => !isNaN(p));
     const min = precios.length ? Math.min(...precios) : 0;
     const max = precios.length ? Math.max(...precios) : 0;
 
     const list = document.getElementById('resultsList');
-    list.style.display = 'flex';
+    list.classList.add('visible');
     list.innerHTML = items.map(item => `
       <a class="result-card" href="${item.url}" target="_blank">
         ${item.imagen
-          ? `<img class="card-img" src="${item.imagen}" alt="${item.titulo}" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>🎮</div>'">`
-          : `<div class="card-img-placeholder">🎮</div>`
-        }
+          ? `<img class="card-img" src="${item.imagen}" alt="" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>🎮</div>'">`
+          : `<div class="card-img-placeholder">🎮</div>`}
         <div class="card-left">
           <div class="card-title">${item.titulo}</div>
           <div class="card-meta">
             <span class="card-condicion ${condicionClass(item.condicion)}">${condicionLabel(item.condicion)}</span>
+            ${item.vendido ? `<span class="vendido-badge">VENDIDO</span>` : ''}
             ${item.ubicacion ? `<span class="card-ubicacion">📍 ${item.ubicacion}</span>` : ''}
+            ${item.fechaFin ? `<span class="fecha-fin">🗓 ${new Date(item.fechaFin).toLocaleDateString('es-ES')}</span>` : ''}
           </div>
         </div>
         <div class="card-right">
@@ -451,12 +366,11 @@
       </a>
     `).join('');
 
-    // Paginación
     if (totalPaginas > 1) {
       document.getElementById('paginacion').classList.add('visible');
-      document.getElementById('pagInfo').textContent = `Página ${paginaActual + 1} de ${totalPaginas}`;
-      document.getElementById('btnAnterior').disabled = paginaActual === 0;
-      document.getElementById('btnSiguiente').disabled = paginaActual >= totalPaginas - 1;
+      document.getElementById('pagInfo').textContent = `Página ${pagina + 1} de ${totalPaginas}`;
+      document.getElementById('btnAnterior').disabled = pagina === 0;
+      document.getElementById('btnSiguiente').disabled = pagina >= totalPaginas - 1;
     } else {
       document.getElementById('paginacion').classList.remove('visible');
     }
@@ -464,34 +378,30 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function cambiarPagina(direccion) {
-    mostrarPagina(paginaActual + direccion);
-  }
+  function cambiarPagina(dir) { mostrarPagina(paginaActual + dir); }
 
   async function buscar() {
     const q = document.getElementById('searchInput').value.trim();
     if (!q) return;
 
+    const plataforma = document.getElementById('filtroPlataforma').value;
     const condicion = document.getElementById('filtroCondicion').value;
     const region = document.getElementById('filtroRegion').value;
     const orden = document.getElementById('filtroOrden').value;
     const precioMin = document.getElementById('precioMin').value;
     const precioMax = document.getElementById('precioMax').value;
-    const plataforma = getPlataforma();
 
-    const params = new URLSearchParams({ q });
+    const params = new URLSearchParams({ q, tipo: tipoActual });
+    if (plataforma) params.append('plataforma', plataforma);
     if (condicion) params.append('condicion', condicion);
     if (region) params.append('region', region);
     if (orden) params.append('orden', orden);
     if (precioMin) params.append('precioMin', precioMin);
     if (precioMax) params.append('precioMax', precioMax);
-    if (plataforma) params.append('plataforma', plataforma);
-
-    ultimaQuery = q;
 
     document.getElementById('loading').classList.add('visible');
     document.getElementById('emptyState').classList.remove('visible');
-    document.getElementById('resultsList').style.display = 'none';
+    document.getElementById('resultsList').classList.remove('visible');
     document.getElementById('statsBar').style.display = 'none';
     document.getElementById('paginacion').classList.remove('visible');
     document.getElementById('demoBanner').classList.remove('visible');
@@ -504,9 +414,7 @@
       document.getElementById('loading').classList.remove('visible');
       document.getElementById('searchBtn').disabled = false;
 
-      if (data.demo) {
-        document.getElementById('demoBanner').classList.add('visible');
-      }
+      if (data.demo) document.getElementById('demoBanner').classList.add('visible');
 
       if (!data.items || data.items.length === 0) {
         document.getElementById('emptyState').classList.add('visible');
@@ -514,9 +422,11 @@
       }
 
       todosLosItems = data.items;
-      paginaActual = 0;
 
-      // Stats sobre TODOS los resultados
+      // Mostrar tabs
+      document.getElementById('tabs').classList.add('visible');
+
+      // Stats reales sobre todos los items
       const precios = data.items.map(i => parseFloat(i.precio)).filter(p => !isNaN(p));
       const minimo = precios.length ? Math.min(...precios) : 0;
       const maximo = precios.length ? Math.max(...precios) : 0;
