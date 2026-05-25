@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RetroPrice — Comparador de Juegos Clásicos</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230a0a0a'/><rect x='2' y='6' width='12' height='6' fill='%2300ff88'/><rect x='4' y='4' width='8' height='2' fill='%2300ff88'/><rect x='5' y='7' width='2' height='4' fill='%230a0a0a'/><rect x='6' y='8' width='4' height='2' fill='%230a0a0a'/><rect x='9' y='7' width='2' height='4' fill='%230a0a0a'/><rect x='3' y='9' width='2' height='2' fill='%23ffaa00'/><rect x='11' y='9' width='2' height='2' fill='%23ffaa00'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -65,11 +66,11 @@
   .section-label { font-size: 0.58rem; letter-spacing: 0.4em; color: var(--green-dim); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
   .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 
-  .search-box { display: flex; border: 2px solid var(--green); box-shadow: 0 0 20px var(--green-glow); }
-  .search-prefix { background: var(--green); color: var(--black); font-family: 'VT323', monospace; font-size: 1.4rem; padding: 0.8rem 1rem; display: flex; align-items: center; }
-  .search-input { flex: 1; background: transparent; border: none; outline: none; color: var(--green); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 0.6rem 1rem; caret-color: var(--green); }
-  .search-input::placeholder { color: rgba(0,255,136,0.2); }
-  .search-btn { background: var(--green); color: var(--black); border: none; font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; padding: 0 1.8rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+  .search-box { display: flex; border: 2px solid var(--green); box-shadow: 0 0 20px var(--green-glow); width: 100%; }
+  .search-prefix { background: var(--green); color: var(--black); font-family: 'VT323', monospace; font-size: 1.4rem; padding: 0.8rem 0.8rem; display: flex; align-items: center; flex-shrink: 0; }
+  .search-input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--green); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 0.6rem 0.8rem; caret-color: var(--green); }
+  .search-input::placeholder { color: rgba(0,255,136,0.2); font-size: 1.1rem; }
+  .search-btn { background: var(--green); color: var(--black); border: none; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; padding: 0 1rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
   .search-btn:hover { background: var(--amber); }
   .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
