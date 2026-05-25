@@ -14,152 +14,182 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/ebay/deletion', (req, res) => {
   const challengeCode = req.query.challenge_code;
   if (!challengeCode) return res.status(400).json({ error: 'Sin challenge_code' });
-
   const verificationToken = process.env.EBAY_VERIFICATION_TOKEN || 'retroprice2025ABCDEFGHabcdefgh12';
   const endpoint = 'https://retroprice.onrender.com/ebay/deletion';
-
-  const hash = crypto.createHash('sha256')
-    .update(challengeCode + verificationToken + endpoint)
-    .digest('hex');
-
+  const hash = crypto.createHash('sha256').update(challengeCode + verificationToken + endpoint).digest('hex');
   res.json({ challengeResponse: hash });
 });
 
-app.post('/ebay/deletion', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
+app.post('/ebay/deletion', (req, res) => res.status(200).json({ status: 'ok' }));
 
-// ─── TOKEN EBAY ───────────────────────────────────────────────────────────────
+// ─── TOKEN BROWSE API ─────────────────────────────────────────────────────────
 let ebayToken = null;
 let tokenExpiry = null;
 
 async function getEbayToken() {
   if (ebayToken && tokenExpiry && Date.now() < tokenExpiry) return ebayToken;
-
   const clientId = process.env.EBAY_CLIENT_ID;
   const clientSecret = process.env.EBAY_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret || clientId === 'TU_CLIENT_ID_AQUI') {
-    return null;
-  }
-
+  if (!clientId || !clientSecret || clientId === 'TU_CLIENT_ID_AQUI') return null;
   try {
     const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
     const response = await axios.post(
       'https://api.ebay.com/identity/v1/oauth2/token',
       'grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope',
-      {
-        headers: {
-          'Authorization': `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }
+      { headers: { 'Authorization': `Basic ${credentials}`, 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
     ebayToken = response.data.access_token;
     tokenExpiry = Date.now() + (response.data.expires_in * 1000) - 60000;
-    console.log('✅ Token eBay obtenido correctamente');
+    console.log('✅ Token eBay obtenido');
     return ebayToken;
   } catch (err) {
-    console.error('Error obteniendo token eBay:', err.message);
+    console.error('Error token eBay:', err.message);
     return null;
   }
 }
 
-// ─── BUSCAR EN EBAY ───────────────────────────────────────────────────────────
-async function searchEbay(query, filtros = {}) {
+// ─── BUSCAR ACTIVOS (Browse API) ──────────────────────────────────────────────
+async function searchEbayActivos(query, filtros = {}) {
   const token = await getEbayToken();
-
-  if (!token) {
-    return {
-      demo: true,
-      items: [
-        { titulo: `${query} — Mega Drive`, precio: '8.50', url: '#', condicion: 'Used', ubicacion: 'ES', imagen: null },
-        { titulo: `${query} — SNES`, precio: '22.00', url: '#', condicion: 'Very Good', ubicacion: 'ES', imagen: null },
-        { titulo: `${query} — CIB completo`, precio: '45.00', url: '#', condicion: 'New', ubicacion: 'ES', imagen: null },
-        { titulo: `${query} — Solo cartucho`, precio: '6.00', url: '#', condicion: 'Acceptable', ubicacion: 'ES', imagen: null },
-      ]
-    };
-  }
+  if (!token) return { demo: true, total: 4, items: demoItems(query) };
 
   try {
     const filterParts = ['buyingOptions:{FIXED_PRICE}'];
-
     if (filtros.condicion) {
-      const condicionMap = {
-        'nuevo': 'conditionIds:{1000}',
-        'como_nuevo': 'conditionIds:{1500|1750|2000}',
-        'muy_bueno': 'conditionIds:{2500|3000}',
-        'bueno': 'conditionIds:{3500|4000}',
-        'aceptable': 'conditionIds:{5000|6000}'
-      };
-      if (condicionMap[filtros.condicion]) filterParts.push(condicionMap[filtros.condicion]);
+      const map = { nuevo: 'conditionIds:{1000}', como_nuevo: 'conditionIds:{1500|1750|2000}', muy_bueno: 'conditionIds:{2500|3000}', bueno: 'conditionIds:{3500|4000}', aceptable: 'conditionIds:{5000|6000}' };
+      if (map[filtros.condicion]) filterParts.push(map[filtros.condicion]);
     }
-
     if (filtros.precioMin || filtros.precioMax) {
-      const min = filtros.precioMin || '0';
-      const max = filtros.precioMax || '10000';
-      filterParts.push(`price:[${min}..${max}],currency:EUR`);
+      filterParts.push(`price:[${filtros.precioMin || 0}..${filtros.precioMax || 10000}],currency:EUR`);
     }
-
-    // Filtro estricto por país
     const esEspana = filtros.region !== 'global';
-    if (esEspana) {
-      filterParts.push('itemLocationCountry:ES');
-    }
-
+    if (esEspana) filterParts.push('itemLocationCountry:ES');
     const marketplaceId = esEspana ? 'EBAY_ES' : 'EBAY_US';
 
-    const params = {
-      q: query,
-      category_ids: '139973',
-      marketplace_id: marketplaceId,
-      limit: 100,
-      filter: filterParts.join(','),
-      sort: filtros.orden || 'price'
-    };
-
     const response = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-EBAY-C-MARKETPLACE-ID': marketplaceId,
-        'X-EBAY-C-ENDUSERCTX': 'contextualLocation=country=ES,zip=00000'
-      },
-      params
+      headers: { 'Authorization': `Bearer ${token}`, 'X-EBAY-C-MARKETPLACE-ID': marketplaceId, 'X-EBAY-C-ENDUSERCTX': 'contextualLocation=country=ES,zip=00000' },
+      params: { q: query, category_ids: '139973', marketplace_id: marketplaceId, limit: 100, filter: filterParts.join(','), sort: filtros.orden || 'price' }
     });
 
     const items = response.data.itemSummaries || [];
-    const total = response.data.total || 0;
-
     return {
       demo: false,
-      total,
-      items: items.map(item => ({
-        titulo: item.title,
-        precio: item.price?.value || 'N/A',
-        moneda: item.price?.currency || 'EUR',
-        url: item.itemWebUrl,
-        condicion: item.condition || 'Used',
-        ubicacion: item.itemLocation?.country || '',
-        imagen: item.image?.imageUrl || null
-      }))
+      total: response.data.total || 0,
+      items: items.map(i => ({ titulo: i.title, precio: i.price?.value || 'N/A', url: i.itemWebUrl, condicion: i.condition || 'Used', ubicacion: i.itemLocation?.country || '', imagen: i.image?.imageUrl || null, vendido: false }))
     };
   } catch (err) {
-    console.error('Error buscando en eBay:', err.message);
-    return { demo: false, items: [] };
+    console.error('Error activos:', err.message);
+    return { demo: false, total: 0, items: [] };
   }
+}
+
+// ─── BUSCAR FINALIZADOS/VENDIDOS (Finding API) ────────────────────────────────
+async function searchEbayFinalizados(query, filtros = {}, soloVendidos = false) {
+  const clientId = process.env.EBAY_CLIENT_ID;
+  if (!clientId || clientId === 'TU_CLIENT_ID_AQUI') return { demo: true, total: 4, items: demoItems(query) };
+
+  try {
+    const esEspana = filtros.region !== 'global';
+    const siteId = esEspana ? '186' : '0'; // 186 = eBay España, 0 = eBay US
+
+    const params = {
+      'OPERATION-NAME': 'findCompletedItems',
+      'SERVICE-VERSION': '1.0.0',
+      'SECURITY-APPNAME': clientId,
+      'RESPONSE-DATA-FORMAT': 'JSON',
+      'keywords': query,
+      'categoryId': '1249', // Videojuegos en Finding API
+      'paginationInput.entriesPerPage': '100',
+      'sortOrder': filtros.orden === '-price' ? 'PricePlusShippingHighest' : 'PricePlusShippingLowest',
+      'outputSelector': 'SellingStatus'
+    };
+
+    // Filtro solo vendidos
+    if (soloVendidos) {
+      params['itemFilter(0).name'] = 'SoldItemsOnly';
+      params['itemFilter(0).value'] = 'true';
+    }
+
+    // Filtro por país
+    if (esEspana) {
+      params['itemFilter(1).name'] = 'LocatedIn';
+      params['itemFilter(1).value'] = 'ES';
+    }
+
+    // Filtro precio
+    if (filtros.precioMin) {
+      params['itemFilter(2).name'] = 'MinPrice';
+      params['itemFilter(2).value'] = filtros.precioMin;
+      params['itemFilter(2).paramName'] = 'Currency';
+      params['itemFilter(2).paramValue'] = 'EUR';
+    }
+    if (filtros.precioMax) {
+      params['itemFilter(3).name'] = 'MaxPrice';
+      params['itemFilter(3).value'] = filtros.precioMax;
+      params['itemFilter(3).paramName'] = 'Currency';
+      params['itemFilter(3).paramValue'] = 'EUR';
+    }
+
+    const response = await axios.get(`https://svcs.ebay.com/services/search/FindingService/v1`, { params });
+
+    const result = response.data?.findCompletedItemsResponse?.[0];
+    const rawItems = result?.searchResult?.[0]?.item || [];
+    const totalEntries = parseInt(result?.paginationOutput?.[0]?.totalEntries?.[0]) || 0;
+
+    const items = rawItems.map(i => {
+      const sellingStatus = i.sellingStatus?.[0];
+      const precio = sellingStatus?.currentPrice?.[0]?.['__value__'] || sellingStatus?.convertedCurrentPrice?.[0]?.['__value__'] || 'N/A';
+      const vendido = sellingStatus?.sellingState?.[0] === 'EndedWithSales';
+
+      return {
+        titulo: i.title?.[0] || '',
+        precio,
+        url: i.viewItemURL?.[0] || '#',
+        condicion: i.condition?.[0]?.conditionDisplayName?.[0] || 'Usado',
+        ubicacion: i.country?.[0] || '',
+        imagen: i.galleryURL?.[0] || null,
+        vendido,
+        fechaFin: i.listingInfo?.[0]?.endTime?.[0] || ''
+      };
+    });
+
+    return { demo: false, total: totalEntries, items };
+  } catch (err) {
+    console.error('Error finalizados:', err.message);
+    return { demo: false, total: 0, items: [] };
+  }
+}
+
+// ─── DEMO ITEMS ───────────────────────────────────────────────────────────────
+function demoItems(query) {
+  return [
+    { titulo: `${query} — Mega Drive`, precio: '8.50', url: '#', condicion: 'Used', ubicacion: 'ES', imagen: null },
+    { titulo: `${query} — SNES`, precio: '22.00', url: '#', condicion: 'Very Good', ubicacion: 'ES', imagen: null },
+    { titulo: `${query} — CIB`, precio: '45.00', url: '#', condicion: 'New', ubicacion: 'ES', imagen: null },
+    { titulo: `${query} — Cartucho`, precio: '6.00', url: '#', condicion: 'Acceptable', ubicacion: 'ES', imagen: null },
+  ];
 }
 
 // ─── ENDPOINT BÚSQUEDA ────────────────────────────────────────────────────────
 app.get('/api/search', async (req, res) => {
-  const { q, condicion, precioMin, precioMax, region, orden, plataforma, offset } = req.query;
+  const { q, condicion, precioMin, precioMax, region, orden, plataforma, tipo } = req.query;
   if (!q) return res.status(400).json({ error: 'Falta el parámetro de búsqueda' });
 
   const queryFinal = plataforma ? `${q} ${plataforma}` : q;
-  console.log(`🔍 Buscando: ${queryFinal} | Región: ${region || 'es'} | Página offset: ${offset || 0}`);
+  const filtros = { condicion, precioMin, precioMax, region: region || 'es', orden };
 
-  const resultado = await searchEbay(queryFinal, { condicion, precioMin, precioMax, region: region || 'es', orden, offset: parseInt(offset) || 0 });
+  console.log(`🔍 Buscando: ${queryFinal} | Tipo: ${tipo || 'activos'} | Región: ${filtros.region}`);
+
+  let resultado;
+  if (tipo === 'finalizados') {
+    resultado = await searchEbayFinalizados(queryFinal, filtros, false);
+  } else if (tipo === 'vendidos') {
+    resultado = await searchEbayFinalizados(queryFinal, filtros, true);
+  } else {
+    resultado = await searchEbayActivos(queryFinal, filtros);
+  }
+
   const precios = resultado.items.map(i => parseFloat(i.precio)).filter(p => !isNaN(p));
-
   const stats = {
     total: resultado.total || resultado.items.length,
     minimo: precios.length ? Math.min(...precios).toFixed(2) : 'N/A',
