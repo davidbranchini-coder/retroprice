@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const crypto = require('crypto');
 const path = require('path');
 require('dotenv').config();
 
@@ -8,6 +9,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ─── ENDPOINT VERIFICACIÓN EBAY ──────────────────────────────────────────────
+app.get('/ebay/deletion', (req, res) => {
+  const challengeCode = req.query.challenge_code;
+  if (!challengeCode) return res.status(400).json({ error: 'Sin challenge_code' });
+
+  const verificationToken = process.env.EBAY_VERIFICATION_TOKEN || 'retroprice2025ABCDEFGHabcdefgh12';
+  const endpoint = 'https://retroprice.onrender.com/ebay/deletion';
+
+  const hash = crypto.createHash('sha256')
+    .update(challengeCode + verificationToken + endpoint)
+    .digest('hex');
+
+  res.json({ challengeResponse: hash });
+});
+
+// eBay envía notificaciones POST aquí (las ignoramos por ahora)
+app.post('/ebay/deletion', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 // ─── TOKEN EBAY ───────────────────────────────────────────────────────────────
 let ebayToken = null;
@@ -50,20 +71,18 @@ async function searchEbay(query, filtros = {}) {
   const token = await getEbayToken();
 
   if (!token) {
-    // Datos de ejemplo si no hay claves
     return {
       demo: true,
       items: [
-        { titulo: `${query} — Mega Drive`, precio: '8.50', url: '#', condicion: 'Usado', ubicacion: 'Madrid, España' },
-        { titulo: `${query} — SNES`, precio: '22.00', url: '#', condicion: 'Muy bueno', ubicacion: 'Barcelona, España' },
-        { titulo: `${query} — CIB completo`, precio: '45.00', url: '#', condicion: 'Nuevo', ubicacion: 'Valencia, España' },
-        { titulo: `${query} — Solo cartucho`, precio: '6.00', url: '#', condicion: 'Aceptable', ubicacion: 'Sevilla, España' },
+        { titulo: `${query} — Mega Drive`, precio: '8.50', url: '#', condicion: 'Used', ubicacion: 'España', imagen: null },
+        { titulo: `${query} — SNES`, precio: '22.00', url: '#', condicion: 'Very Good', ubicacion: 'España', imagen: null },
+        { titulo: `${query} — CIB completo`, precio: '45.00', url: '#', condicion: 'New', ubicacion: 'España', imagen: null },
+        { titulo: `${query} — Solo cartucho`, precio: '6.00', url: '#', condicion: 'Acceptable', ubicacion: 'España', imagen: null },
       ]
     };
   }
 
   try {
-    // Construir filtros
     const filterParts = ['buyingOptions:{FIXED_PRICE}'];
 
     if (filtros.condicion) {
@@ -105,7 +124,7 @@ async function searchEbay(query, filtros = {}) {
         precio: item.price?.value || 'N/A',
         moneda: item.price?.currency || 'EUR',
         url: item.itemWebUrl,
-        condicion: item.condition || 'Usado',
+        condicion: item.condition || 'Used',
         ubicacion: item.itemLocation?.country || '',
         imagen: item.image?.imageUrl || null
       }))
