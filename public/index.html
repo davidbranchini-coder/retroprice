@@ -362,9 +362,8 @@
 </footer>
 
 <script>
-  // Reloj
   let paginaActual = 0;
-  let totalResultados = 0;
+  let todosLosItems = [];
   let ultimaQuery = '';
   const POR_PAGINA = 20;
   setInterval(() => {
@@ -419,7 +418,57 @@
     return 'medio';
   }
 
-  async function buscar(offset = 0) {
+  function mostrarPagina(pagina) {
+    paginaActual = pagina;
+    const inicio = pagina * POR_PAGINA;
+    const fin = inicio + POR_PAGINA;
+    const items = todosLosItems.slice(inicio, fin);
+    const totalPaginas = Math.ceil(todosLosItems.length / POR_PAGINA);
+
+    const precios = todosLosItems.map(i => parseFloat(i.precio)).filter(p => !isNaN(p));
+    const min = precios.length ? Math.min(...precios) : 0;
+    const max = precios.length ? Math.max(...precios) : 0;
+
+    const list = document.getElementById('resultsList');
+    list.style.display = 'flex';
+    list.innerHTML = items.map(item => `
+      <a class="result-card" href="${item.url}" target="_blank">
+        ${item.imagen
+          ? `<img class="card-img" src="${item.imagen}" alt="${item.titulo}" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>🎮</div>'">`
+          : `<div class="card-img-placeholder">🎮</div>`
+        }
+        <div class="card-left">
+          <div class="card-title">${item.titulo}</div>
+          <div class="card-meta">
+            <span class="card-condicion ${condicionClass(item.condicion)}">${condicionLabel(item.condicion)}</span>
+            ${item.ubicacion ? `<span class="card-ubicacion">📍 ${item.ubicacion}</span>` : ''}
+          </div>
+        </div>
+        <div class="card-right">
+          <div class="card-price ${precioColor(item.precio, min, max)}">${parseFloat(item.precio) ? parseFloat(item.precio).toFixed(2) + '€' : 'N/A'}</div>
+          <div class="ver-link">VER EN EBAY →</div>
+        </div>
+      </a>
+    `).join('');
+
+    // Paginación
+    if (totalPaginas > 1) {
+      document.getElementById('paginacion').classList.add('visible');
+      document.getElementById('pagInfo').textContent = `Página ${paginaActual + 1} de ${totalPaginas}`;
+      document.getElementById('btnAnterior').disabled = paginaActual === 0;
+      document.getElementById('btnSiguiente').disabled = paginaActual >= totalPaginas - 1;
+    } else {
+      document.getElementById('paginacion').classList.remove('visible');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cambiarPagina(direccion) {
+    mostrarPagina(paginaActual + direccion);
+  }
+
+  async function buscar() {
     const q = document.getElementById('searchInput').value.trim();
     if (!q) return;
 
@@ -430,7 +479,7 @@
     const precioMax = document.getElementById('precioMax').value;
     const plataforma = getPlataforma();
 
-    const params = new URLSearchParams({ q, offset });
+    const params = new URLSearchParams({ q });
     if (condicion) params.append('condicion', condicion);
     if (region) params.append('region', region);
     if (orden) params.append('orden', orden);
@@ -464,52 +513,22 @@
         return;
       }
 
-      totalResultados = data.total || data.items.length;
-      paginaActual = Math.floor(offset / POR_PAGINA);
+      todosLosItems = data.items;
+      paginaActual = 0;
 
-      // Stats
+      // Stats sobre TODOS los resultados
+      const precios = data.items.map(i => parseFloat(i.precio)).filter(p => !isNaN(p));
+      const minimo = precios.length ? Math.min(...precios) : 0;
+      const maximo = precios.length ? Math.max(...precios) : 0;
+      const medio = precios.length ? precios.reduce((a, b) => a + b, 0) / precios.length : 0;
+
       document.getElementById('statsBar').style.display = 'grid';
-      document.getElementById('statTotal').textContent = totalResultados;
-      document.getElementById('statMin').textContent = data.stats.minimo !== 'N/A' ? data.stats.minimo + '€' : '—';
-      document.getElementById('statMed').textContent = data.stats.medio !== 'N/A' ? data.stats.medio + '€' : '—';
-      document.getElementById('statMax').textContent = data.stats.maximo !== 'N/A' ? data.stats.maximo + '€' : '—';
+      document.getElementById('statTotal').textContent = data.total || data.items.length;
+      document.getElementById('statMin').textContent = minimo ? minimo.toFixed(2) + '€' : '—';
+      document.getElementById('statMed').textContent = medio ? medio.toFixed(2) + '€' : '—';
+      document.getElementById('statMax').textContent = maximo ? maximo.toFixed(2) + '€' : '—';
 
-      const min = parseFloat(data.stats.minimo);
-      const max = parseFloat(data.stats.maximo);
-
-      // Cards
-      const list = document.getElementById('resultsList');
-      list.style.display = 'flex';
-      list.innerHTML = data.items.map(item => `
-        <a class="result-card" href="${item.url}" target="_blank">
-          ${item.imagen
-            ? `<img class="card-img" src="${item.imagen}" alt="${item.titulo}" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>🎮</div>'">`
-            : `<div class="card-img-placeholder">🎮</div>`
-          }
-          <div class="card-left">
-            <div class="card-title">${item.titulo}</div>
-            <div class="card-meta">
-              <span class="card-condicion ${condicionClass(item.condicion)}">${condicionLabel(item.condicion)}</span>
-              ${item.ubicacion ? `<span class="card-ubicacion">📍 ${item.ubicacion}</span>` : ''}
-            </div>
-          </div>
-          <div class="card-right">
-            <div class="card-price ${precioColor(item.precio, min, max)}">${parseFloat(item.precio) ? parseFloat(item.precio).toFixed(2) + '€' : 'N/A'}</div>
-            <div class="ver-link">VER EN EBAY →</div>
-          </div>
-        </a>
-      `).join('');
-
-      // Paginación
-      const totalPaginas = Math.ceil(totalResultados / POR_PAGINA);
-      if (totalPaginas > 1) {
-        document.getElementById('paginacion').classList.add('visible');
-        document.getElementById('pagInfo').textContent = `Página ${paginaActual + 1} de ${totalPaginas}`;
-        document.getElementById('btnAnterior').disabled = paginaActual === 0;
-        document.getElementById('btnSiguiente').disabled = paginaActual >= totalPaginas - 1;
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      mostrarPagina(0);
 
     } catch (err) {
       document.getElementById('loading').classList.remove('visible');
@@ -517,11 +536,6 @@
       document.getElementById('emptyState').classList.add('visible');
       console.error(err);
     }
-  }
-
-  function cambiarPagina(direccion) {
-    const nuevoOffset = (paginaActual + direccion) * POR_PAGINA;
-    buscar(nuevoOffset);
   }
 </script>
 

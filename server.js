@@ -113,8 +113,7 @@ async function searchEbay(query, filtros = {}) {
       q: query,
       category_ids: '139973',
       marketplace_id: marketplaceId,
-      limit: 20,
-      offset: filtros.offset || 0,
+      limit: 100,
       filter: filterParts.join(','),
       sort: filtros.orden || 'price'
     };
