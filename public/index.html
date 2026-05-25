@@ -120,14 +120,17 @@
   .chips-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .chip {
     border: 1px solid var(--border);
-    padding: 0.25rem 0.6rem;
-    font-size: 0.55rem;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.62rem;
     letter-spacing: 0.08em;
     color: var(--green-dim);
     cursor: pointer;
     transition: all 0.15s;
     text-transform: uppercase;
     user-select: none;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
   }
   .chip:hover, .chip.active { border-color: var(--green); color: var(--green); background: var(--green-glow); }
 
@@ -264,14 +267,16 @@
       <div class="filtro-label">Plataforma</div>
       <div class="chips-row" id="chipPlataforma">
         <div class="chip active" data-val="">TODAS</div>
-        <div class="chip" data-val="Mega Drive">MD</div>
-        <div class="chip" data-val="SNES">SNES</div>
-        <div class="chip" data-val="PlayStation">PSX</div>
-        <div class="chip" data-val="Nintendo 64">N64</div>
-        <div class="chip" data-val="Game Boy">GB</div>
-        <div class="chip" data-val="Saturn">SAT</div>
-        <div class="chip" data-val="Dreamcast">DC</div>
-        <div class="chip" data-val="NES">NES</div>
+        <div class="chip" data-val="Mega Drive">MEGA DRIVE</div>
+        <div class="chip" data-val="Super Nintendo SNES">SNES</div>
+        <div class="chip" data-val="PlayStation PS1">PLAYSTATION</div>
+        <div class="chip" data-val="Nintendo 64 N64">NINTENDO 64</div>
+        <div class="chip" data-val="Game Boy">GAME BOY</div>
+        <div class="chip" data-val="Sega Saturn">SATURN</div>
+        <div class="chip" data-val="Dreamcast">DREAMCAST</div>
+        <div class="chip" data-val="NES Nintendo">NES</div>
+        <div class="chip" data-val="PlayStation 2 PS2">PS2</div>
+        <div class="chip" data-val="Game Boy Advance GBA">GBA</div>
       </div>
     </div>
 

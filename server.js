@@ -101,12 +101,13 @@ async function searchEbay(query, filtros = {}) {
       filterParts.push(`price:[${min}..${max}],currency:EUR`);
     }
 
-    // Filtro de ubicación por país
-    if (filtros.region === 'es') {
+    // Filtro estricto por país
+    const esEspana = filtros.region !== 'global';
+    if (esEspana) {
       filterParts.push('itemLocationCountry:ES');
     }
 
-    const marketplaceId = filtros.region === 'global' ? 'EBAY_US' : 'EBAY_ES';
+    const marketplaceId = esEspana ? 'EBAY_ES' : 'EBAY_US';
 
     const params = {
       q: query,
