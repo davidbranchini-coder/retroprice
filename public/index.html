@@ -136,13 +136,20 @@
   .chip:hover, .chip.active { border-color: var(--green); color: var(--green); background: var(--green-glow); }
 
   /* Stats */
-  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); margin: 1.5rem 0; display: none; }
-  .stat-item { padding: 1rem 1.2rem; border-right: 1px solid var(--border); }
+  .stats-bar { display: none; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); margin: 1.5rem 0; }
+  .stat-item { padding: 0.8rem 1rem; border-right: 1px solid var(--border); }
   .stat-item:last-child { border-right: none; }
-  .stat-label { font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.3rem; }
-  .stat-value { font-family: 'VT323', monospace; font-size: 2rem; color: var(--green); line-height: 1; }
+  .stat-label { font-size: 0.5rem; color: var(--green-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .stat-value { font-family: 'VT323', monospace; font-size: 1.6rem; color: var(--green); line-height: 1; }
   .stat-value.amber { color: var(--amber); }
   .stat-value.red { color: var(--red); }
+
+  @media (max-width: 600px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr) !important; }
+    .stat-item:nth-child(2) { border-right: none; }
+    .stat-item:nth-child(1), .stat-item:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .stat-value { font-size: 1.4rem; }
+  }
 
   /* Loading */
   .loading { text-align: center; padding: 3rem; font-family: 'VT323', monospace; font-size: 1.5rem; color: var(--green-dim); display: none; }
@@ -225,10 +232,14 @@
   .pag-info { font-size: 0.6rem; color: var(--green-dim); letter-spacing: 0.1em; } padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.1em; box-shadow: 0 -2px 30px var(--green-glow); margin-top: 3rem; }
 
   @media (max-width: 600px) {
-    .stats-bar { grid-template-columns: repeat(2,1fr); }
     header { flex-direction: column; align-items: flex-start; }
     .header-status { margin-left: 0; text-align: left; }
     .filtros-grid { grid-template-columns: 1fr; }
+    main { padding: 1rem; }
+    .result-card { grid-template-columns: auto 1fr; }
+    .card-right { grid-column: 2; }
+    .paginacion { gap: 0.5rem; }
+    .pag-btn { padding: 0.5rem 0.8rem; font-size: 0.55rem; }
   }
 </style>
 </head>
