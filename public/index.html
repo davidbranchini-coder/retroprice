@@ -212,7 +212,13 @@
   .card-price.medio { color: var(--amber); }
   .ver-link { font-size: 0.5rem; color: var(--green-dim); letter-spacing: 0.1em; margin-top: 0.2rem; }
 
-  footer { border-top: 2px solid var(--green); padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.1em; box-shadow: 0 -2px 30px var(--green-glow); margin-top: 3rem; }
+  .paginacion { display: none; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .paginacion.visible { display: flex; }
+  .pag-btn { background: transparent; border: 1px solid var(--green); color: var(--green); font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; padding: 0.5rem 1.2rem; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+  .pag-btn:hover { background: var(--green); color: var(--black); }
+  .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .pag-btn:disabled:hover { background: transparent; color: var(--green); }
+  .pag-info { font-size: 0.6rem; color: var(--green-dim); letter-spacing: 0.1em; } padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.52rem; color: var(--green-dim); letter-spacing: 0.1em; box-shadow: 0 -2px 30px var(--green-glow); margin-top: 3rem; }
 
   @media (max-width: 600px) {
     .stats-bar { grid-template-columns: repeat(2,1fr); }
@@ -335,6 +341,12 @@
 
   <div class="results-list" id="resultsList"></div>
 
+  <div class="paginacion" id="paginacion">
+    <button class="pag-btn" id="btnAnterior" onclick="cambiarPagina(-1)">← ANTERIOR</button>
+    <span class="pag-info" id="pagInfo">Página 1</span>
+    <button class="pag-btn" id="btnSiguiente" onclick="cambiarPagina(1)">SIGUIENTE →</button>
+  </div>
+
 </main>
 
 <footer>
@@ -345,6 +357,10 @@
 
 <script>
   // Reloj
+  let paginaActual = 0;
+  let totalResultados = 0;
+  let ultimaQuery = '';
+  const POR_PAGINA = 20;
   setInterval(() => {
     document.getElementById('hora').textContent = new Date().toLocaleTimeString('es-ES');
   }, 1000);
@@ -397,7 +413,7 @@
     return 'medio';
   }
 
-  async function buscar() {
+  async function buscar(offset = 0) {
     const q = document.getElementById('searchInput').value.trim();
     if (!q) return;
 
@@ -408,7 +424,7 @@
     const precioMax = document.getElementById('precioMax').value;
     const plataforma = getPlataforma();
 
-    const params = new URLSearchParams({ q });
+    const params = new URLSearchParams({ q, offset });
     if (condicion) params.append('condicion', condicion);
     if (region) params.append('region', region);
     if (orden) params.append('orden', orden);
@@ -416,10 +432,13 @@
     if (precioMax) params.append('precioMax', precioMax);
     if (plataforma) params.append('plataforma', plataforma);
 
+    ultimaQuery = q;
+
     document.getElementById('loading').classList.add('visible');
     document.getElementById('emptyState').classList.remove('visible');
     document.getElementById('resultsList').style.display = 'none';
     document.getElementById('statsBar').style.display = 'none';
+    document.getElementById('paginacion').classList.remove('visible');
     document.getElementById('demoBanner').classList.remove('visible');
     document.getElementById('searchBtn').disabled = true;
 
@@ -439,9 +458,12 @@
         return;
       }
 
+      totalResultados = data.total || data.items.length;
+      paginaActual = Math.floor(offset / POR_PAGINA);
+
       // Stats
       document.getElementById('statsBar').style.display = 'grid';
-      document.getElementById('statTotal').textContent = data.stats.total;
+      document.getElementById('statTotal').textContent = totalResultados;
       document.getElementById('statMin').textContent = data.stats.minimo !== 'N/A' ? data.stats.minimo + '€' : '—';
       document.getElementById('statMed').textContent = data.stats.medio !== 'N/A' ? data.stats.medio + '€' : '—';
       document.getElementById('statMax').textContent = data.stats.maximo !== 'N/A' ? data.stats.maximo + '€' : '—';
@@ -455,7 +477,7 @@
       list.innerHTML = data.items.map(item => `
         <a class="result-card" href="${item.url}" target="_blank">
           ${item.imagen
-            ? `<img class="card-img" src="${item.imagen}" alt="${item.titulo}" onerror="this.style.display='none'">`
+            ? `<img class="card-img" src="${item.imagen}" alt="${item.titulo}" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>🎮</div>'">`
             : `<div class="card-img-placeholder">🎮</div>`
           }
           <div class="card-left">
@@ -472,12 +494,28 @@
         </a>
       `).join('');
 
+      // Paginación
+      const totalPaginas = Math.ceil(totalResultados / POR_PAGINA);
+      if (totalPaginas > 1) {
+        document.getElementById('paginacion').classList.add('visible');
+        document.getElementById('pagInfo').textContent = `Página ${paginaActual + 1} de ${totalPaginas}`;
+        document.getElementById('btnAnterior').disabled = paginaActual === 0;
+        document.getElementById('btnSiguiente').disabled = paginaActual >= totalPaginas - 1;
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
     } catch (err) {
       document.getElementById('loading').classList.remove('visible');
       document.getElementById('searchBtn').disabled = false;
       document.getElementById('emptyState').classList.add('visible');
       console.error(err);
     }
+  }
+
+  function cambiarPagina(direccion) {
+    const nuevoOffset = (paginaActual + direccion) * POR_PAGINA;
+    buscar(nuevoOffset);
   }
 </script>
 

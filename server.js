@@ -113,9 +113,9 @@ async function searchEbay(query, filtros = {}) {
       category_ids: '139973',
       marketplace_id: marketplaceId,
       limit: 20,
+      offset: filtros.offset || 0,
       filter: filterParts.join(','),
-      sort: filtros.orden || 'price',
-      fieldgroups: 'EXTENDED' // Pide campos extra incluyendo imágenes
+      sort: filtros.orden || 'price'
     };
 
     const response = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
@@ -128,8 +128,11 @@ async function searchEbay(query, filtros = {}) {
     });
 
     const items = response.data.itemSummaries || [];
+    const total = response.data.total || 0;
+
     return {
       demo: false,
+      total,
       items: items.map(item => ({
         titulo: item.title,
         precio: item.price?.value || 'N/A',
@@ -137,7 +140,7 @@ async function searchEbay(query, filtros = {}) {
         url: item.itemWebUrl,
         condicion: item.condition || 'Used',
         ubicacion: item.itemLocation?.country || '',
-        imagen: item.thumbnailImages?.[0]?.imageUrl || item.image?.imageUrl || null
+        imagen: item.image?.imageUrl || null
       }))
     };
   } catch (err) {
@@ -148,23 +151,23 @@ async function searchEbay(query, filtros = {}) {
 
 // ─── ENDPOINT BÚSQUEDA ────────────────────────────────────────────────────────
 app.get('/api/search', async (req, res) => {
-  const { q, condicion, precioMin, precioMax, region, orden, plataforma } = req.query;
+  const { q, condicion, precioMin, precioMax, region, orden, plataforma, offset } = req.query;
   if (!q) return res.status(400).json({ error: 'Falta el parámetro de búsqueda' });
 
   const queryFinal = plataforma ? `${q} ${plataforma}` : q;
-  console.log(`🔍 Buscando: ${queryFinal} | Región: ${region || 'es'}`);
+  console.log(`🔍 Buscando: ${queryFinal} | Región: ${region || 'es'} | Página offset: ${offset || 0}`);
 
-  const resultado = await searchEbay(queryFinal, { condicion, precioMin, precioMax, region: region || 'es', orden });
+  const resultado = await searchEbay(queryFinal, { condicion, precioMin, precioMax, region: region || 'es', orden, offset: parseInt(offset) || 0 });
   const precios = resultado.items.map(i => parseFloat(i.precio)).filter(p => !isNaN(p));
 
   const stats = {
-    total: resultado.items.length,
+    total: resultado.total || resultado.items.length,
     minimo: precios.length ? Math.min(...precios).toFixed(2) : 'N/A',
     maximo: precios.length ? Math.max(...precios).toFixed(2) : 'N/A',
     medio: precios.length ? (precios.reduce((a, b) => a + b, 0) / precios.length).toFixed(2) : 'N/A'
   };
 
-  res.json({ query: queryFinal, demo: resultado.demo, stats, items: resultado.items });
+  res.json({ query: queryFinal, demo: resultado.demo, stats, items: resultado.items, total: resultado.total });
 });
 
 // ─── ARRANCAR ─────────────────────────────────────────────────────────────────
