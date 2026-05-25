@@ -133,11 +133,9 @@ async function searchEbayFinalizados(query, filtros = {}, soloVendidos = false) 
       filterIndex++;
     }
 
-    const url = esEspana
-      ? 'https://svcs.ebay.es/services/search/FindingService/v1'
-      : 'https://svcs.ebay.com/services/search/FindingService/v1';
+    const url = 'https://svcs.ebay.com/services/search/FindingService/v1';
 
-    console.log(`🔍 Finding API: ${url} | Vendidos: ${soloVendidos} | España: ${esEspana}`);
+    console.log(`🔍 Finding API | Vendidos: ${soloVendidos} | España: ${esEspana}`);
 
     const response = await axios.get(url, { params });
 
