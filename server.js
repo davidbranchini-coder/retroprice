@@ -90,7 +90,6 @@ async function searchEbayFinalizados(query, filtros = {}, soloVendidos = false) 
 
   try {
     const esEspana = filtros.region !== 'global';
-    const siteId = esEspana ? '186' : '0'; // 186 = eBay España, 0 = eBay US
 
     const params = {
       'OPERATION-NAME': 'findCompletedItems',
@@ -98,49 +97,60 @@ async function searchEbayFinalizados(query, filtros = {}, soloVendidos = false) 
       'SECURITY-APPNAME': clientId,
       'RESPONSE-DATA-FORMAT': 'JSON',
       'keywords': query,
-      'categoryId': '1249', // Videojuegos en Finding API
       'paginationInput.entriesPerPage': '100',
       'sortOrder': filtros.orden === '-price' ? 'PricePlusShippingHighest' : 'PricePlusShippingLowest',
-      'outputSelector': 'SellingStatus'
+      'outputSelector(0)': 'SellingStatus',
+      'outputSelector(1)': 'PictureURLLarge'
     };
 
-    // Filtro solo vendidos
+    let filterIndex = 0;
+
     if (soloVendidos) {
-      params['itemFilter(0).name'] = 'SoldItemsOnly';
-      params['itemFilter(0).value'] = 'true';
+      params[`itemFilter(${filterIndex}).name`] = 'SoldItemsOnly';
+      params[`itemFilter(${filterIndex}).value`] = 'true';
+      filterIndex++;
     }
 
-    // Filtro por país
     if (esEspana) {
-      params['itemFilter(1).name'] = 'LocatedIn';
-      params['itemFilter(1).value'] = 'ES';
+      params[`itemFilter(${filterIndex}).name`] = 'LocatedIn';
+      params[`itemFilter(${filterIndex}).value`] = 'ES';
+      filterIndex++;
     }
 
-    // Filtro precio
     if (filtros.precioMin) {
-      params['itemFilter(2).name'] = 'MinPrice';
-      params['itemFilter(2).value'] = filtros.precioMin;
-      params['itemFilter(2).paramName'] = 'Currency';
-      params['itemFilter(2).paramValue'] = 'EUR';
-    }
-    if (filtros.precioMax) {
-      params['itemFilter(3).name'] = 'MaxPrice';
-      params['itemFilter(3).value'] = filtros.precioMax;
-      params['itemFilter(3).paramName'] = 'Currency';
-      params['itemFilter(3).paramValue'] = 'EUR';
+      params[`itemFilter(${filterIndex}).name`] = 'MinPrice';
+      params[`itemFilter(${filterIndex}).value`] = filtros.precioMin;
+      params[`itemFilter(${filterIndex}).paramName`] = 'Currency';
+      params[`itemFilter(${filterIndex}).paramValue`] = 'EUR';
+      filterIndex++;
     }
 
-    const response = await axios.get(`https://svcs.ebay.com/services/search/FindingService/v1`, { params });
+    if (filtros.precioMax) {
+      params[`itemFilter(${filterIndex}).name`] = 'MaxPrice';
+      params[`itemFilter(${filterIndex}).value`] = filtros.precioMax;
+      params[`itemFilter(${filterIndex}).paramName`] = 'Currency';
+      params[`itemFilter(${filterIndex}).paramValue`] = 'EUR';
+      filterIndex++;
+    }
+
+    const url = esEspana
+      ? 'https://svcs.ebay.es/services/search/FindingService/v1'
+      : 'https://svcs.ebay.com/services/search/FindingService/v1';
+
+    console.log(`🔍 Finding API: ${url} | Vendidos: ${soloVendidos} | España: ${esEspana}`);
+
+    const response = await axios.get(url, { params });
 
     const result = response.data?.findCompletedItemsResponse?.[0];
     const rawItems = result?.searchResult?.[0]?.item || [];
     const totalEntries = parseInt(result?.paginationOutput?.[0]?.totalEntries?.[0]) || 0;
 
+    console.log(`✅ Finding API devolvió ${rawItems.length} items de ${totalEntries} totales`);
+
     const items = rawItems.map(i => {
       const sellingStatus = i.sellingStatus?.[0];
       const precio = sellingStatus?.currentPrice?.[0]?.['__value__'] || sellingStatus?.convertedCurrentPrice?.[0]?.['__value__'] || 'N/A';
       const vendido = sellingStatus?.sellingState?.[0] === 'EndedWithSales';
-
       return {
         titulo: i.title?.[0] || '',
         precio,
@@ -156,6 +166,7 @@ async function searchEbayFinalizados(query, filtros = {}, soloVendidos = false) 
     return { demo: false, total: totalEntries, items };
   } catch (err) {
     console.error('Error finalizados:', err.message);
+    if (err.response) console.error('Response:', JSON.stringify(err.response.data).slice(0, 500));
     return { demo: false, total: 0, items: [] };
   }
 }
